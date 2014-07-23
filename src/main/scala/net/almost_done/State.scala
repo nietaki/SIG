@@ -30,6 +30,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   lazy val cardOnTopOfTable = tableCards.lastIndexWhere(_ > 0)
 
   lazy val currentPlayerCards = playerCards(0)
+  lazy val otherPlayerCards = playerCards(1)
 
   def index = cardSplits.foldLeft(0)((acc, cardSplit) => acc * Utils.possibleCardSplitsCount + cardSplit.ord)
 
@@ -58,5 +59,23 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
    *         plays will always consist of at least one card and no more than the player has
    */
   def possibleMoves: List[Move] = possiblePlays ++ possibleDraws
+
+
+
+  protected def possiblePlayUndoMoves: List[Move] = {
+    val maxPlaySize = tableCardCount - 1
+    val sameCardCountOnTopOfTheTable = tableCards(cardOnTopOfTable)
+    (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(cardOnTopOfTable, _)).toList
+  }
+
+  protected def possibleDrawUndoMoves: List[Move] = {
+    /*
+    the player drew the cards so now he has them. They couldn't have drawn all the cards they had now, they had to have
+    at least one of the cards they have now, hence the until
+     */
+    (1 until otherPlayerCards.sum).map(Draw(_)).toList
+  }
+
+  def possibleUndoMoves: List[Move] = possibleDrawUndoMoves ++ possiblePlayUndoMoves
 }
 

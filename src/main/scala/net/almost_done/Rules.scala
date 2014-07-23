@@ -48,7 +48,50 @@ class Rules(val settings: Settings) {
   }
 
   def legalMoves(state: State): List[Move] = {
-    val stateVerifier = isLegal(state) _
-    state.possibleMoves.filter(stateVerifier(_))
+    state.possibleMoves.filter(isLegal(state)(_))
   }
+
+  def legalMoveCount = legalMoves(_: State).length
+
+  //TODO
+  //TODO
+  //TODO scalacheck tests for moves and undo moves (together)
+  //TODO
+  //TODO
+
+  //UNDO
+  def isUndoLegal(state: State)(move: Move): Boolean = move match {
+    case Draw(drawCount) => {
+      if(drawCount == 3) {
+        true
+      } else if(drawCount < 3) {
+        //cannot draw less than 3 cards if there's 3 or more cards to take
+        state.tableCardCount == 1
+      } else {
+        //drawCount > 3
+        settings.drawingCards == Settings.DrawingAnyNumberOfCardsGreaterOrEqualThree ||
+          (settings.drawingCards == Settings.DrawingThreeCardsOrAll && state.tableCardCount == 1)
+      }
+    }
+    case Play(rank, count) => {
+      count match {
+        case 1 => true
+        case 4 => settings.playingFourFigures == Settings.PlayingFourFiguresAllowed
+        case 3 => {
+          rank match {
+            case 0 => settings.playingThreeNines == Settings.PlayingThreeNinesAllowed
+            case _ => (settings.playingThreeFigures == Settings.PlayingThreeFiguresAllowed) ||
+              (settings.playingThreeFigures == Settings.PlayingThreeFiguresOnlyOnAFourth && state.tableCards(rank) == 4)
+          }
+        }
+        case _ => false
+      }
+
+    }
+
+  }
+
+  def legalUndoMoves(state:State) = state.possibleUndoMoves.filter(isUndoLegal(state)(_))
+
+
 }

@@ -12,8 +12,10 @@ import net.almost_done._
 val ss = Utils.randomStartingState
 
 ss.currentPlayerCards
+ss.otherPlayerCards
 
 ss.possibleMoves
+ss.possibleUndoMoves
 
 val defaultRules = new Rules(Settings.Default)
 val simplestRules = new Rules(Settings.Simplest)
