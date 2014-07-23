@@ -20,6 +20,7 @@ object Generators {
 
   private val correctState: Gen[State] = {
     val ls = Gen.listOfN(6, cardSplitGen)
+    //could be done without the filter
     val correct = ls.filter(ls => ls(0).tableCount > 0).map(ls => State(ls.toIndexedSeq))
     correct
   }

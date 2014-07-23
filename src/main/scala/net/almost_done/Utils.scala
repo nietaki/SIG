@@ -44,6 +44,21 @@ object Utils {
     State(ret)
   }
 
+  def cardRepresentation(ord: Int):String = {
+    ord match {
+      case 0 => "9"
+      case 1 => "10"
+      case 2 => "J"
+      case 3 => "D"
+      case 4 => "K"
+      case 5 => "A"
+      case _ => throw new IllegalArgumentException()
+    }
+  }
 
+  def cardsRepresentation(cardCounts: Seq[Int]): String = {
+    val cards = cardCounts.zipWithIndex.flatMap({case (count, card) => Seq.fill(count)(card)})
+    cards.length.toString + ": " + cards.map(cardRepresentation(_)).fold("")(_ + _)
+  }
 
 }
