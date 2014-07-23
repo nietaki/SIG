@@ -17,6 +17,8 @@ case class CardSplit(counts: List[Int]) {
     case _ => throw new IllegalArgumentException()
   }
 
+  def tableCount = counts(2)
+
   lazy val ord = Utils.cardSplitOrds(this)
 
 

@@ -11,11 +11,17 @@ package net.almost_done
 case class State(cardSplits: IndexedSeq[CardSplit]) {
   require(cardSplits.length == 6)
 
+  /**
+   * @param idx 0 is the currently moving player, 1 is the other one
+   * @return a sequence of how many cards of each rank the player has
+   */
   def playerCards(idx: Int): IndexedSeq[Int] = {
     require(idx >= 0)
     require(idx <= 1)
     cardSplits.map(cs => cs.counts(idx))
   }
+
+  def tableCards = cardSplits.map(_.tableCount)
 
   def currentPlayerCards = playerCards(0)
 

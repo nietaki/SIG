@@ -1,9 +1,6 @@
 package test
 
 import org.specs2.mutable._
-import org.specs2.matcher._
-
-import math._
 
 class SampleSpec extends Specification {
  
