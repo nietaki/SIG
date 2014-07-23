@@ -23,8 +23,35 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
 
   def tableCards = cardSplits.map(_.tableCount)
 
-  def currentPlayerCards = playerCards(0)
+  /**
+   * the table should never be empty
+   */
+  lazy val cardOnTopOfTable = tableCards.lastIndexWhere(_ > 0)
+
+  lazy val currentPlayerCards = playerCards(0)
 
   def index = cardSplits.foldLeft(0)((acc, cardSplit) => acc * Utils.possibleCardSplitsCount + cardSplit.ord)
+
+  /**
+   * @return a list of possible "draw" moves. They aren't necessarily legal - that is to be determined by the Rules
+   */
+  def possibleDraws: List[Move] = {
+    val tableCardCount = tableCards.sum
+    if(tableCardCount <= 1) {
+      List()
+    } else {
+      (1 until tableCardCount).map(Draw(_)).toList
+    }
+  }
+
+  def possiblePlays: List[Move] = {
+    val plays = for(
+      rank <- (cardOnTopOfTable until 6);
+      count <- (1 to currentPlayerCards(rank))
+    ) yield Play(rank, count)
+    plays.toList
+  }
+
+  def possibleMoves: List[Move] = possiblePlays ++ possibleDraws
 }
 

@@ -6,3 +6,15 @@ val combinations = for (
 ) yield (x, y, z)
 
 combinations.length
+
+import net.almost_done._
+
+val ss = Utils.randomStartingState
+
+ss.currentPlayerCards
+
+ss.possibleDraws
+ss.possiblePlays
+
+
+

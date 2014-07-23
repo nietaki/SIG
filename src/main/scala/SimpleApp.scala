@@ -1,4 +1,3 @@
-import org.apache.spark.SparkContext
 
 /**
  * Created by nietaki on 3/6/14.
