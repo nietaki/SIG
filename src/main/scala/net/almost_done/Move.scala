@@ -9,7 +9,7 @@ sealed trait Move {
 
 /**
  * the move where the current player plays one or more cards of the same rank
- * @param card the card rank
+ * @param rank the card rank
  * @param count how many cards are played
  */
 case class Play(rank: Int, count: Int) extends Move

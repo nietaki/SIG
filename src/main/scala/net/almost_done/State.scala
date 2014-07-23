@@ -32,10 +32,8 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
 
   def index = cardSplits.foldLeft(0)((acc, cardSplit) => acc * Utils.possibleCardSplitsCount + cardSplit.ord)
 
-  /**
-   * @return a list of possible "draw" moves. They aren't necessarily legal - that is to be determined by the Rules
-   */
-  def possibleDraws: List[Move] = {
+
+  protected def possibleDraws: List[Move] = {
     val tableCardCount = tableCards.sum
     if(tableCardCount <= 1) {
       List()
@@ -44,7 +42,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     }
   }
 
-  def possiblePlays: List[Move] = {
+  protected def possiblePlays: List[Move] = {
     val plays = for(
       rank <- (cardOnTopOfTable until 6);
       count <- (1 to currentPlayerCards(rank))
@@ -52,6 +50,13 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     plays.toList
   }
 
+  /**
+   * @return a list of possible moves. They aren't necessarily legal - that is to be determined by the Rules. But there
+   *         are constraints:
+   *         draws will always leave at least one card on the table
+   *         plays will always consist of one card rank and the rank will be GEQ to the card on top of the table stack
+   *         plays will always consist of at least one card and no more than the player has
+   */
   def possibleMoves: List[Move] = possiblePlays ++ possibleDraws
 }
 

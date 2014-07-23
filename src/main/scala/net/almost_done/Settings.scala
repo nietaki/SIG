@@ -20,7 +20,7 @@ object Settings {
   case object PlayingThreeFiguresNotAllowed extends PlayingThreeFigures
 
   sealed trait DrawingCards
-  case object DrawingThreeCardsOrFewer extends DrawingCards
+  case object DrawingThreeCards extends DrawingCards
   case object DrawingThreeCardsOrAll extends DrawingCards
   case object DrawingAnyNumberOfCardsGreaterThanThree extends DrawingCards
 
@@ -28,9 +28,9 @@ object Settings {
 
   object Simplest extends Settings {
     override val playingThreeNines: PlayingThreeNines = PlayingThreeNinesNotAllowed
-    override val playingFourFigures: PlayingFourFigures = PlayingFourFiguresAllowed
+    override val playingFourFigures: PlayingFourFigures = PlayingFourFiguresNotAllowed
     override val playingThreeFigures: PlayingThreeFigures = PlayingThreeFiguresNotAllowed
-    override val drawingCards: DrawingCards = DrawingThreeCardsOrFewer
+    override val drawingCards: DrawingCards = DrawingThreeCards
   }
 
   object Default extends Settings {
