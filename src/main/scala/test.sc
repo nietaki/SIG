@@ -13,8 +13,14 @@ val ss = Utils.randomStartingState
 
 ss.currentPlayerCards
 
-ss.possibleDraws
-ss.possiblePlays
+ss.possibleMoves
 
+val defaultRules = new Rules(Settings.Default)
+val simplestRules = new Rules(Settings.Simplest)
+val crazyRules = new Rules(Settings.Crazy)
+
+defaultRules.legalMoves(ss)
+simplestRules.legalMoves(ss)
+crazyRules.legalMoves(ss)
 
 

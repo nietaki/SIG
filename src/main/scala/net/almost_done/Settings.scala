@@ -10,7 +10,7 @@ object Settings {
   case object PlayingThreeNinesAllowed extends PlayingThreeNines
   case object PlayingThreeNinesNotAllowed extends PlayingThreeNines
 
-  sealed trait  PlayingFourFigures
+  sealed trait PlayingFourFigures
   case object PlayingFourFiguresAllowed extends PlayingFourFigures
   case object PlayingFourFiguresNotAllowed extends PlayingFourFigures
 
@@ -22,10 +22,9 @@ object Settings {
   sealed trait DrawingCards
   case object DrawingThreeCards extends DrawingCards
   case object DrawingThreeCardsOrAll extends DrawingCards
-  case object DrawingAnyNumberOfCardsGreaterThanThree extends DrawingCards
+  case object DrawingAnyNumberOfCardsGreaterOrEqualThree extends DrawingCards
 
   /* rule sets */
-
   object Simplest extends Settings {
     override val playingThreeNines: PlayingThreeNines = PlayingThreeNinesNotAllowed
     override val playingFourFigures: PlayingFourFigures = PlayingFourFiguresNotAllowed
@@ -34,11 +33,19 @@ object Settings {
   }
 
   object Default extends Settings {
-    override val playingThreeNines: PlayingThreeNines = PlayingThreeNinesNotAllowed
+    override val playingThreeNines: PlayingThreeNines = PlayingThreeNinesAllowed
     override val playingFourFigures: PlayingFourFigures = PlayingFourFiguresAllowed
     override val playingThreeFigures: PlayingThreeFigures = PlayingThreeFiguresNotAllowed
-    override val drawingCards: DrawingCards = DrawingAnyNumberOfCardsGreaterThanThree
+    override val drawingCards: DrawingCards = DrawingThreeCards
   }
+
+  object Crazy extends Settings {
+    override val playingThreeNines: PlayingThreeNines = PlayingThreeNinesAllowed
+    override val playingFourFigures: PlayingFourFigures = PlayingFourFiguresAllowed
+    override val playingThreeFigures: PlayingThreeFigures = PlayingThreeFiguresAllowed
+    override val drawingCards: DrawingCards = DrawingAnyNumberOfCardsGreaterOrEqualThree
+  }
+
 }
 
 trait Settings {
@@ -46,5 +53,4 @@ trait Settings {
   val playingFourFigures: PlayingFourFigures
   val playingThreeFigures: PlayingThreeFigures
   val drawingCards: DrawingCards
-
 }

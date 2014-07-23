@@ -22,6 +22,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   }
 
   def tableCards = cardSplits.map(_.tableCount)
+  lazy val tableCardCount = tableCards.sum
 
   /**
    * the table should never be empty
@@ -34,7 +35,6 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
 
 
   protected def possibleDraws: List[Move] = {
-    val tableCardCount = tableCards.sum
     if(tableCardCount <= 1) {
       List()
     } else {
