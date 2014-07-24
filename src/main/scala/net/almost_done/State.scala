@@ -1,5 +1,6 @@
 package net.almost_done
 
+import Implicits._
 /**
  * Created by nietaki on 23.07.14.
  */
@@ -28,6 +29,8 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
    * the table should never be empty
    */
   lazy val cardOnTopOfTable = tableCards.lastIndexWhere(_ > 0)
+
+  //def highestCardOfPlayer(idx: Int) = playerCards(idx).lastIndexWhere(_ > 0)
 
   lazy val currentPlayerCards = playerCards(0)
   lazy val otherPlayerCards = playerCards(1)
@@ -101,20 +104,28 @@ def beforeMove(move: Move): State = {
   }
 
   //UNDO
-  protected def possiblePlayUndoMoves: List[Move] = {
-    val maxPlaySize = tableCardCount - 1
-    val sameCardCountOnTopOfTheTable = tableCards(cardOnTopOfTable)
-    (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(cardOnTopOfTable, _)).toList
-  }
-
-  protected def possibleDrawUndoMoves: List[Move] = {
+  protected def possibleDrawUndoMoves: Seq[UndoDraw] = {
     /*
     the player drew the cards so now he has them. They couldn't have drawn all the cards they had now, they had to have
     at least one of the cards they have now, hence the until
      */
-    (1 until otherPlayerCards.sum).map(Draw(_)).toList
+    //TODO this could be more effective within the whole algorithm if the first undos were "sticking to" the end moves
+    //(1 until otherPlayerCards.sum).map(Draw(_)).toList
+    val firstVialble = cardOnTopOfTable
+    val startingCounts = List.fill(6)(0)
+    val endingCountsUnchecked = otherPlayerCards //they couldn't have drawn more than they have
+    val endingCounts = startingCounts.take(firstVialble) ::: endingCountsUnchecked.drop(firstVialble).toList
+
+    val combinations = Utils.combinations2(startingCounts, endingCounts)
+    combinations.map(combination => UndoDraw(Draw(combination.sum), combination))
   }
 
-  def possibleUndoMoves: List[Move] = possibleDrawUndoMoves ++ possiblePlayUndoMoves
+  def possiblePlayUndoMoves: List[UndoPlay] = {
+    val maxPlaySize = tableCardCount - 1
+    val sameCardCountOnTopOfTheTable = tableCards(cardOnTopOfTable)
+    (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(cardOnTopOfTable, _)).map(UndoPlay(_)).toList
+  }
+
+  def possibleUndoMoves: Seq[UndoMove] = possibleDrawUndoMoves ++ possiblePlayUndoMoves
 }
 

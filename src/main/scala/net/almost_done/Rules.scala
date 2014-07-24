@@ -60,7 +60,10 @@ class Rules(val settings: Settings) {
   //TODO
 
   //UNDO
-  def isUndoLegal(state: State)(move: Move): Boolean = move match {
+  def isUndoLegal(state: State)(move: UndoMove): Boolean = ??? //FIXME: this should all work with UndoMoves
+    /*
+    move match {
+
     case Draw(drawCount) => {
       if(drawCount == 3) {
         true
@@ -88,9 +91,9 @@ class Rules(val settings: Settings) {
       }
 
     }
-
   }
 
+    */
   def legalUndoMoves(state:State) = state.possibleUndoMoves.filter(isUndoLegal(state)(_))
 
 

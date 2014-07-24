@@ -61,4 +61,36 @@ object Utils {
     cards.length.toString + ": " + cards.map(cardRepresentation(_)).fold("")(_ + _)
   }
 
+
+def combinations(startingCounts: List[Int], endingCounts: List[Int]): IndexedSeq[List[Int]] = {
+    for(
+      a <- startingCounts(0) to endingCounts(0);
+      b <- startingCounts(1) to endingCounts(1);
+      c <- startingCounts(2) to endingCounts(2);
+      d <- startingCounts(3) to endingCounts(3);
+      e <- startingCounts(4) to endingCounts(4);
+      f <- startingCounts(5) to endingCounts(5)
+    ) yield List(a, b, c, d, e, f)
+  }
+
+  import scala.annotation.tailrec
+
+  type SLInt = IndexedSeq[List[Int]]
+  def combinations2(startingCounts: List[Int], endingCounts: List[Int] ): IndexedSeq[List[Int]] = {
+    @tailrec
+    def inner(acc: SLInt, startingCounts: List[Int], endingCounts: List[Int]): SLInt = {
+      (startingCounts, endingCounts) match {
+        case (sh :: st, eh :: et) if (sh <= eh) => {
+          val newAcc = for(
+            ls <- acc;
+            last <- (sh to eh)
+          ) yield (last :: ls)
+          inner(newAcc, st, et)
+        }
+        case (Nil, Nil) => acc
+        case _ => throw new IllegalArgumentException()
+      }
+    }
+    inner(IndexedSeq(List()), startingCounts.reverse, endingCounts.reverse)
+  }
 }

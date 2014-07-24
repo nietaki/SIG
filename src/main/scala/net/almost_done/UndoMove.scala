@@ -15,6 +15,6 @@ case class UndoPlay(play: Play) extends UndoMove {
  * @param draw the draw move being undone
  * @param cardCounts the card counts in the usual format - count of the cards for each rank like (0, 1, 1, 3, 2, 4)
  */
-case class UndoDraw(draw: Draw, cardCounts: IndexedSeq[Int]) extends UndoMove {
+case class UndoDraw(draw: Draw, cardCounts: List[Int]) extends UndoMove {
   override val move = draw
 }
