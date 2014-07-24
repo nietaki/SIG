@@ -13,7 +13,7 @@ object Generators {
       x <- Gen.choose(0, 4);
       y <- Gen.choose(0, 4-x);
       if(x + y <= 4)
-    ) yield CardSplit(List(x, y, 4 - x - y))
+    ) yield CardSplit(x, y, 4 - x - y)
   }
 
   implicit val arbitraryCardSplit: Arbitrary[CardSplit] = Arbitrary(cardSplitGen)

@@ -40,8 +40,20 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
     "have at least one 9 on the table" in prop{s: State =>
       s.tableCards(0) > 0
     }
-    "have the index in the desired range" in prop{s: State=>
+    "have the index in the desired range" in prop{s: State =>
       s.index >= 0 && s.index < Utils.possibleStatesCount
+    }
+    "afterMove should produce states with other player's cards intact" ! prop{s: State =>
+      val statesAfterMove = s.possibleMoves.map(s.afterMove(_))
+      statesAfterMove.forall({ newState =>
+        s.otherPlayerCards.zip(newState.currentPlayerCards).forall({case (a, b) => a == b})
+      })
+    }
+    "afterMove should produce states with current player's cards changed" ! prop{s: State =>
+      val statesAfterMove = s.possibleMoves.map(s.afterMove(_))
+      statesAfterMove.forall({ newState =>
+        s.currentPlayerCards.zip(newState.otherPlayerCards).exists({case (a, b) => a != b})
+      })
     }
   }
 

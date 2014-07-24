@@ -60,31 +60,32 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
    */
   def possibleMoves: List[Move] = possiblePlays ++ possibleDraws
 
-  def afterMove(move: Move) = {
+  def afterMove(move: Move): State = {
     require(possibleMoves.contains(move))
+    import Implicits._
     move match {
       case Draw(count) => {
-        var remainingCount = count
-        cardSplits.foldRight(IndexedSeq[CardSplit]()) {case (split, vector) =>
-          split
-          val newSplit = if (remainingCount > 0) {
+        val(seq, remainingCount) = cardSplits.foldRight((IndexedSeq[CardSplit](), count)) {case (split, (vector, remainingCount)) =>
+          val (newSplit, newRemainingCount): (CardSplit, Int) = if (remainingCount > 0) {
             val diff = math.min(remainingCount, split.tableCount)
-            remainingCount -= remainingCount
-            CardSplit(split.theirs, split.ours + diff, split.table - diff)
+            (CardSplit(split.theirs, split.ours + diff, split.table - diff), remainingCount - diff)
           } else {
-            split.withSwitchedPlayers
+            (split.withSwitchedPlayers, 0)
           }
-          newSplit +: vector
+          (newSplit +: vector, newRemainingCount)
         }
+        assert(remainingCount == 0)
+        seq
       }
       case Play(rank, count) => {
-        cardSplits.zipWithIndex.map({case (split, curRank) =>
+        val ret: IndexedSeq[CardSplit] = cardSplits.zipWithIndex.map({case (split, curRank) =>
           if (curRank == rank) {
             CardSplit(split.theirs, split.ours - count, split.table + count)
           } else {
             split.withSwitchedPlayers
           }
         })
+        ret
       }
     }
   }
