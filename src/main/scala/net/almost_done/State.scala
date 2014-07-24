@@ -63,10 +63,27 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   def afterMove(move: Move) = {
     require(possibleMoves.contains(move))
     move match {
-      case Draw(count) => ???
+      case Draw(count) => {
+        var remainingCount = count
+        cardSplits.foldRight(IndexedSeq[CardSplit]()) {case (split, vector) =>
+          split
+          val newSplit = if (remainingCount > 0) {
+            val diff = math.min(remainingCount, split.tableCount)
+            remainingCount -= remainingCount
+            CardSplit(split.theirs, split.ours + diff, split.table - diff)
+          } else {
+            split.withSwitchedPlayers
+          }
+          newSplit +: vector
+        }
+      }
       case Play(rank, count) => {
         cardSplits.zipWithIndex.map({case (split, curRank) =>
-          ???
+          if (curRank == rank) {
+            CardSplit(split.theirs, split.ours - count, split.table + count)
+          } else {
+            split.withSwitchedPlayers
+          }
         })
       }
     }

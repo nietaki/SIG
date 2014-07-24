@@ -13,7 +13,7 @@ object Utils {
     y <- 0 to 4;
     z <- 0 to 4;
     if(x + y + z == 4)
-  ) yield CardSplit(x :: y:: z :: Nil)
+  ) yield CardSplit(x, y, z)
 
   val cardSplitOrds = possibleCardSplits.zipWithIndex.toMap
 
@@ -40,7 +40,7 @@ object Utils {
 
     val tableCounts = Vector.fill(6)(0).updated(0, 1)
 
-    val ret = (0 until 6).map(idx => CardSplit(pl0Counts(idx) :: pl1Counts(idx) :: tableCounts(idx) :: Nil))
+    val ret = (0 until 6).map(idx => CardSplit(pl0Counts(idx), pl1Counts(idx), tableCounts(idx)))
     State(ret)
   }
 
