@@ -60,8 +60,21 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
    */
   def possibleMoves: List[Move] = possiblePlays ++ possibleDraws
 
+  def afterMove(move: Move) = {
+    require(possibleMoves.contains(move))
+    move match {
+      case Draw(count) => ???
+      case Play(rank, count) => {
+        cardSplits.zipWithIndex.map({case (split, curRank) =>
+          ???
+        })
+      }
+    }
+  }
 
+  def beforeMove(move: Move): State = ???
 
+  //UNDO
   protected def possiblePlayUndoMoves: List[Move] = {
     val maxPlaySize = tableCardCount - 1
     val sameCardCountOnTopOfTheTable = tableCards(cardOnTopOfTable)
