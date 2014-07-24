@@ -90,7 +90,15 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     }
   }
 
-  def beforeMove(move: Move): State = ???
+
+def beforeMove(move: Move): State = {
+    require(possibleUndoMoves.contains(move))
+    import Implicits._
+    move match {
+      case Draw(count) => ???
+      case Play(rank, count) => ???
+    }
+  }
 
   //UNDO
   protected def possiblePlayUndoMoves: List[Move] = {
