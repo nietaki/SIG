@@ -116,7 +116,11 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
     "return to the same state after any possible play made" ! prop{s: State =>
       s.possibleMoves.foreach(_ match {
         case play: Play => s.afterMove(play).beforeUndo(UndoPlay(play)) mustEqual(s)
-        case _ => () //TODO: add a test for this case
+        case Draw(count) => {
+          val draw = Draw(count)
+          val cardsDrawn = s.topTableCards(count)
+          s.afterMove(draw).beforeUndo(UndoDraw(draw, cardsDrawn)) mustEqual(s)
+        }
       })
     }
 
