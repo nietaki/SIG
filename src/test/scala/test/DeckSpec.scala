@@ -11,7 +11,11 @@ import org.specs2.ScalaCheck
 import org.specs2.matcher.{Parameters, TraversableMatchers}
 import org.specs2.mutable._
 import spire.implicits._
-import spire.math._/**
+import spire.math._
+
+import scala.util.Random
+
+/**
  * Created by nietaki on 04.07.14.
  */
 class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
@@ -53,6 +57,47 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
       val statesAfterMove = s.possibleMoves.map(s.afterMove(_))
       statesAfterMove.forall({ newState =>
         s.currentPlayerCards.zip(newState.otherPlayerCards).exists({case (a, b) => a != b})
+      })
+    }
+
+  }
+  "test" should {
+    "be able to compare collections" ! prop{ls: List[Int] =>
+      ls must containTheSameElementsAs(ls)
+    }
+
+    "compare collections when shuffled" ! prop {ls: List[Int] =>
+      ls must containTheSameElementsAs(Random.shuffle(ls))
+    }
+  }
+
+  "State.topTableCards" should {
+    "return the correct card count" ! Prop.forAllNoShrink(Generators.stateAndLessThanTableCardCount)({case (s, count) =>
+      s.topTableCards(count).sum == count
+    })
+
+    "give no more cards than there are on the table" ! Prop.forAllNoShrink(Generators.stateAndLessThanTableCardCount)({ case (s, count) =>
+      s.topTableCards(count).zip(s.tableCards).forall(tuple => tuple._1 <= tuple._2)
+    })
+
+    "give all the cards in all but the lowest (if that makes sense)" ! Prop.forAllNoShrink(Generators.stateAndLessThanTableCardCount)({ case (s, count) =>
+      val top = s.topTableCards(count)
+      val firstIndex = top.indexWhere(_ > 0)
+      if(firstIndex >= 0) {
+        val afterFirst = firstIndex + 1
+        (afterFirst until top.length).forall(i => s.tableCards(i) == top(i))
+      } else
+        true
+
+    })
+
+  }
+
+  "State.beforeMove" should {
+    "return to the same state after any possible play made" ! prop{s: State =>
+      s.possibleMoves.foreach(_ match {
+        case play: Play => s.afterMove(play).beforeUndo(UndoPlay(play)).cardSplits must containTheSameElementsAs(s.cardSplits)
+        case _ => ()
       })
     }
   }

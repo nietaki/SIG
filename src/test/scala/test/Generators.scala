@@ -27,4 +27,11 @@ object Generators {
 
   implicit val arbitraryState: Arbitrary[State] = Arbitrary(correctState)
 
+  val stateAndLessThanTableCardCount: Gen[(State, Int)] = {
+    for(
+      s <- correctState;
+      count <- Gen.choose(0, s.tableCardCount - 1)
+    ) yield (s, count)
+  }
+
 }

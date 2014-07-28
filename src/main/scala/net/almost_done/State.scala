@@ -25,6 +25,19 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   def tableCards = cardSplits.map(_.tableCount)
   lazy val tableCardCount = tableCards.sum
 
+  def topTableCards(cardCount: Int): List[Int] = {
+    require(cardCount < this.tableCardCount)
+    val starting: (Int, List[Int]) = (cardCount, Nil)
+    val ret = tableCards.foldRight(starting) {case (curCount, (remaining, tail)) =>
+      if(curCount <= remaining) {
+        (remaining - curCount, curCount :: tail)
+      } else {
+        (0, remaining :: tail)
+      }
+    }
+    ret._2
+  }
+
   /**
    * the table should never be empty
    */
@@ -93,13 +106,38 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     }
   }
 
-
-def beforeMove(move: Move): State = {
-    require(possibleUndoMoves.contains(move))
+  def beforeUndo(undo: UndoMove): State = {
     import Implicits._
-    move match {
-      case Draw(count) => ???
-      case Play(rank, count) => ???
+    undo match {
+      case UndoDraw(draw, cardCounts) => {
+        //the other player drew the cards, whe have to give them back to the table and switch the players
+        require(draw.count == cardCounts.sum)
+        val splitsAndDrawnCards: IndexedSeq[(CardSplit, Int)] = this.cardSplits.zip(cardCounts)
+        val newSplits = splitsAndDrawnCards.map({case (split, cardCount) =>
+            split match {
+              case CardSplit(ours, theirs, table) => CardSplit(theirs - cardCount, ours, table + cardCount)
+            }
+        })
+        newSplits
+      }
+      case UndoPlay(play) => {
+        //the other player played the cards, we need to give them back from the table
+        play match {
+          case Play(rank, count) => {
+            val newSplits = this.cardSplits.zipWithIndex map { case (split, index) =>
+              if(rank != index) {
+                //cards remain unchanged
+                CardSplit(split.theirs, split.ours, split.table)
+              } else {
+                //giving cards back to the other player
+                CardSplit(split.theirs + count, split.ours, split.table - count)
+              }
+            }
+            newSplits
+          }
+          case _ => throw new IllegalArgumentException()
+        }
+      }
     }
   }
 
