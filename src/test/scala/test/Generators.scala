@@ -11,8 +11,7 @@ object Generators {
   val cardSplitGen: Gen[CardSplit] = {
     for (
       x <- Gen.choose(0, 4);
-      y <- Gen.choose(0, 4-x);
-      if(x + y <= 4)
+      y <- Gen.choose(0, 4-x)
     ) yield CardSplit(x, y, 4 - x - y)
   }
 

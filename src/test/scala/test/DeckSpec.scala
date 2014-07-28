@@ -19,10 +19,13 @@ import scala.util.Random
  * Created by nietaki on 04.07.14.
  */
 class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
+
+  override implicit def defaultParameters = new Parameters(minTestsOk = 1000)
+
   "Deck" should {
     "construct a correct random deck" in {
       val state = Utils.randomStartingState
-      state.cardSplits.length == 6
+      state.cardSplits.length mustEqual(6)
     }
   }
 
@@ -41,6 +44,16 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
   }
 
   "State" should {
+    "be equal to another state IFF it contains the same splits" ! prop{st: (State, State) =>
+      val (s1, s2) = st
+      val elementsSame: Boolean = (s1.cardSplits.length == s2.cardSplits.length) &&
+        s1.cardSplits.zip(s2.cardSplits).forall(splitTuple => splitTuple._1 == splitTuple._2)
+      (s1 == s2) mustEqual elementsSame
+    }
+    "not have its index collide with a different State" ! prop{st: (State, State) =>
+      val (s1, s2) = st
+      (s1.index == s2.index) == (s1 == s2)
+    }
     "have at least one 9 on the table" in prop{s: State =>
       s.tableCards(0) > 0
     }
@@ -88,18 +101,36 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
         (afterFirst until top.length).forall(i => s.tableCards(i) == top(i))
       } else
         true
-
     })
 
   }
 
+  "State.afterMove" should {
+    "change the state" ! prop {s: State =>
+      s.possibleMoves.forall {pm: Move =>
+        s.afterMove(pm) != s
+      }
+    }
+  }
   "State.beforeMove" should {
     "return to the same state after any possible play made" ! prop{s: State =>
       s.possibleMoves.foreach(_ match {
-        case play: Play => s.afterMove(play).beforeUndo(UndoPlay(play)).cardSplits must containTheSameElementsAs(s.cardSplits)
-        case _ => ()
+        case play: Play => s.afterMove(play).beforeUndo(UndoPlay(play)) mustEqual(s)
+        case _ => () //TODO: add a test for this case
       })
     }
+
+    "correctly redo any undone move" ! prop { s: State =>
+      s.possibleUndoMoves.forall {u: UndoMove =>
+        s.beforeUndo(u).afterMove(u.move) == s
+      }
+    }
+    "change the state" ! prop { s: State =>
+      s.possibleUndoMoves.forall {u: UndoMove =>
+        s.beforeUndo(u) != s
+      }
+    }
+
   }
 
 }

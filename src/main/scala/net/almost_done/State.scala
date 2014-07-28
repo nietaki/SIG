@@ -154,7 +154,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     val endingCountsUnchecked = otherPlayerCards //they couldn't have drawn more than they have
     val endingCounts = startingCounts.take(firstVialble) ::: endingCountsUnchecked.drop(firstVialble).toList
 
-    val combinations = Utils.combinations2(startingCounts, endingCounts)
+    val combinations = Utils.combinations2(startingCounts, endingCounts).filter(_.sum > 0)
     combinations.map(combination => UndoDraw(Draw(combination.sum), combination))
   }
 
