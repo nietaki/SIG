@@ -33,4 +33,16 @@ object Generators {
     ) yield (s, count)
   }
 
+  val settings: Gen[Settings] = {
+    import Settings._
+    for(
+      ptn <- Gen.oneOf(PlayingThreeNinesAllowed, PlayingThreeNinesNotAllowed);
+      pff <- Gen.oneOf(PlayingFourFiguresAllowed, PlayingFourFiguresNotAllowed);
+      ptf <- Gen.oneOf(PlayingThreeFiguresAllowed, PlayingThreeFiguresOnlyOnAFourth, PlayingThreeFiguresNotAllowed);
+      dc <- Gen.oneOf(DrawingThreeCards, DrawingThreeCardsOrAll, DrawingAnyNumberOfCardsGreaterOrEqualThree)
+    ) yield Settings(ptn, pff, ptf, dc)
+  }
+
+  implicit val arbitrarySettings: Arbitrary[Settings] = Arbitrary(settings)
+
 }

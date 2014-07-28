@@ -134,7 +134,35 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
         s.beforeUndo(u) != s
       }
     }
+  }
 
+  "All Settings" should {
+    "allow to undo all the moves they allowed to do" ! prop { (state: State, settings: Settings) =>
+      val r = new Rules(settings)
+      r.legalMoves(state).forall{m: Move =>
+        val undo = state.getUndoForMove(m)
+        val newState = state.afterMove(m)
+        if(!r.isUndoLegal(newState)(undo)) {
+          //I'll leave this here for posterity, to show how this test helped find an otherwise difficult to find bug
+          println("original state")
+          println(state)
+          println("move")
+          println(m)
+          println("undo")
+          println(undo)
+          println("newState")
+          println(newState)
+          false
+        } else true
+      }
+    }
+    "allow to redo all the moves they allowed to undo" ! prop { (state: State, settings: Settings) =>
+      val r = new Rules(settings)
+      r.legalUndoMoves(state).forall{undo: UndoMove =>
+        val newState = state.beforeUndo(undo)
+        r.isLegal(newState)(undo.move)
+      }
+    }
   }
 
 }

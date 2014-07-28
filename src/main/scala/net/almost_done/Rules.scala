@@ -60,23 +60,20 @@ class Rules(val settings: Settings) {
   //TODO
 
   //UNDO
-  def isUndoLegal(state: State)(move: UndoMove): Boolean = ??? //FIXME: this should all work with UndoMoves
-    /*
-    move match {
-
-    case Draw(drawCount) => {
+  def isUndoLegal(state: State)(undoMove: UndoMove): Boolean =
+    undoMove match {
+    case UndoDraw(Draw(drawCount), cardsDrawn) => {
       if(drawCount == 3) {
         true
       } else if(drawCount < 3) {
-        //cannot draw less than 3 cards if there's 3 or more cards to take
         state.tableCardCount == 1
       } else {
         //drawCount > 3
-        settings.drawingCards == Settings.DrawingAnyNumberOfCardsGreaterOrEqualThree ||
-          (settings.drawingCards == Settings.DrawingThreeCardsOrAll && state.tableCardCount == 1)
+        settings.drawingCards == Settings.DrawingAnyNumberOfCardsGreaterOrEqualThree || //any count is legal
+          (settings.drawingCards == Settings.DrawingThreeCardsOrAll && state.tableCardCount == 1) //the table had to be sucked dry
       }
     }
-    case Play(rank, count) => {
+    case UndoPlay(Play(rank, count)) => {
       count match {
         case 1 => true
         case 4 => settings.playingFourFigures == Settings.PlayingFourFiguresAllowed
@@ -93,7 +90,6 @@ class Rules(val settings: Settings) {
     }
   }
 
-    */
   def legalUndoMoves(state:State) = state.possibleUndoMoves.filter(isUndoLegal(state)(_))
 
 

@@ -106,6 +106,11 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     }
   }
 
+  def getUndoForMove(move: Move) = move match {
+    case play: Play => UndoPlay(play)
+    case Draw(count) => UndoDraw(Draw(count), this.topTableCards(count))
+  }
+
   def beforeUndo(undo: UndoMove): State = {
     import Implicits._
     undo match {

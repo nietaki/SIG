@@ -24,6 +24,15 @@ object Settings {
   case object DrawingThreeCardsOrAll extends DrawingCards
   case object DrawingAnyNumberOfCardsGreaterOrEqualThree extends DrawingCards
 
+  def apply(ptn: PlayingThreeNines, pff: PlayingFourFigures, ptf: PlayingThreeFigures, dc: DrawingCards): Settings = {
+    new Settings {
+      override val playingThreeNines: PlayingThreeNines = ptn
+      override val playingFourFigures: PlayingFourFigures = pff
+      override val drawingCards: DrawingCards = dc
+      override val playingThreeFigures: PlayingThreeFigures = ptf
+    }
+  }
+
   /* rule sets */
   object Simplest extends Settings {
     override val playingThreeNines: PlayingThreeNines = PlayingThreeNinesNotAllowed
@@ -53,4 +62,6 @@ trait Settings {
   val playingFourFigures: PlayingFourFigures
   val playingThreeFigures: PlayingThreeFigures
   val drawingCards: DrawingCards
+
+  override def toString = s"Settings: $playingThreeNines, $playingFourFigures, $playingThreeFigures, $drawingCards"
 }
