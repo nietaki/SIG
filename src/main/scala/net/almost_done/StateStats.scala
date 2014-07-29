@@ -3,24 +3,15 @@ package net.almost_done
 /**
  * Created by nietaki on 23.07.14.
  */
-class StateStats {
-  /**
-   * best move for the current player
-   */
-  var impendingResultOption: Option[ImpendingResult] = None
-  var bestMoveOption: Option[Move] = None
 
-  /**
-   * how many moves are left to make sure the state is losing
-   */
-  protected var movesLeft: Option[Int] = None
-
-  /**
-   * determines if the stats hasn't been visited yet - the remaining children count hasn't been checked yet and set
-   * to the moves left, same with the impendingResult
-   * @return
-   */
-  def isUntouched = movesLeft.isEmpty
+/**
+ *
+ * @param impendingResult
+ * @param bestMoveOption best move for the current player - option, it does not exist for final states
+ * @param movesLeft how many outgoing moves are left to make sure the state is losing
+ */
+case class StateStats(val impendingResult: ImpendingResult, val bestMoveOption: Option[Move], val movesLeft: Int) {
+  require(movesLeft >= 0)
 
   /**
    * checks if the state is already analyzed (enough) to determine its result. That occurs either when a winning move is
@@ -28,48 +19,43 @@ class StateStats {
    * @return a Boolean signifying if the state is already recognized as winning or losing
    */
   def isSolved: Boolean = {
-    if(impendingResultOption.isDefined && impendingResultOption.get.result == Win)
+    if(impendingResult.result == Win)
       true
     else
-      movesLeft.fold(false)(_  <= 0)
+      movesLeft <= 0
   }
 
-  /**
-   * updates this StateStat based on the information of the successor
-   * @param successorStateStat the successor (isn't verified)
-   */
-  def updateWithCurStateUndoAndSuccessor(curState: State, undo: UndoMove, successorStateStat: StateStats) {
-    assert(successorStateStat.impendingResultOption.isDefined)
-    if(this.isUntouched) {
-      //we need to initialize the values
-      this.movesLeft = Some(curState.possibleMoves.length - 1) //we subtract for the successorStateStat already
-      this.bestMoveOption = Some(undo.move)
-      this.impendingResultOption = successorStateStat.impendingResultOption.map(_.forParent)
-    } else {
-      assert(this.movesLeft.isDefined)
-      assert(this.movesLeft.get > 0)
-
-    }
-  }
 
   /*
    * the two functions below say if the
    */
-  def isWon = impendingResultOption.fold(false)(_.result == Win)
-  def isProbablyLost = impendingResultOption.fold(false)(_.result == Win)
+  def isWon = impendingResult.result == Win
+  def isProbablyLost = impendingResult.result == Loss
 
+  def updated(curState: State, undo: UndoMove, successorStateStat: StateStats): StateStats = {
+    val possibleNewResult: ImpendingResult = successorStateStat.impendingResult.forParent
+    val (newResult, newBestMoveOption) = if(possibleNewResult.isBetterThan(impendingResult))
+      (possibleNewResult, Some(undo.move))
+    else
+      (impendingResult, bestMoveOption)
+    val newMovesLeft = movesLeft - 1
+    StateStats(newResult, newBestMoveOption, newMovesLeft)
+  }
 }
 
-object StateStats {
-  def finalStats: StateStats = {
-    val ret = new StateStats
-    ret.impendingResultOption = Some(finalResult)
-    ret.movesLeft = Some(0)
-    ret
-  }
+object StateStatsHelper {
+  def finalStats = StateStats(finalResult, None, 0)
 
   val finalResult = ImpendingResult(Loss, 0)
+
+  def stateStatsOptionUpdated(rules: Rules)(sso: Option[StateStats]) = sso match {
+    case Some(ss) => ss.updated _
+    case None => {(curState: State, undo: UndoMove, successorStateStat: StateStats) =>
+      val impendingResult = successorStateStat.impendingResult.forParent
+      val bestMove = undo.move
+      val movesLeft = rules.legalMoveCount(curState.beforeUndo(undo)) - 1
+      StateStats(impendingResult, Some(bestMove), movesLeft)
+    }
+  }
 }
-
-
 

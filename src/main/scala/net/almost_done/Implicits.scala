@@ -1,5 +1,7 @@
 package net.almost_done
 
+import scala.language.implicitConversions
+
 /**
  * Created by nietaki on 24.07.14.
  */

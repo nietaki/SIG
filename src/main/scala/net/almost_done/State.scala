@@ -48,7 +48,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   lazy val currentPlayerCards = playerCards(0)
   lazy val otherPlayerCards = playerCards(1)
 
-  def index = cardSplits.foldLeft(0)((acc, cardSplit) => acc * Utils.possibleCardSplitsCount + cardSplit.ord)
+  lazy val index = cardSplits.foldLeft(0)((acc, cardSplit) => acc * Utils.possibleCardSplitsCount + cardSplit.ord)
 
 
   protected def possibleDraws: List[Move] = {

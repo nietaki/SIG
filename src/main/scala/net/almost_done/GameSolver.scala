@@ -11,22 +11,34 @@ import scala.collection._
 class GameSolver(val settings: Settings) {
   val rules = new Rules(settings)
 
-  val stateStats: Array[StateStats] = Array.fill(Utils.possibleStatesCount)(new StateStats)
+  val stateStats: Array[Option[StateStats]] = Array.fill(Utils.possibleStatesCount)(None)
 
   val stateQueue: mutable.Queue[State] = mutable.Queue.empty
   val endStates = Utils.endStates
   endStates.foreach{es: State =>
-    val stat = StateStats.finalStats
-    assert(stat.isSolved)
+    stateStats.update(es.index, Some(StateStatsHelper.finalStats))
   }
+
+  val statsUpdated = StateStatsHelper.stateStatsOptionUpdated(rules) _
+
   stateQueue ++= endStates
   while(stateQueue.nonEmpty) {
+    //v - more final state
     val v = stateQueue.dequeue()
-    val stat = stateStats(v.index)
-    assert(stat.isSolved)
+    val vStatOption = stateStats(v.index)
+    assert(vStatOption.isDefined)
+    val vStat = vStatOption.get
+    assert(vStat.isSolved)
     val possibleUndoes = rules.legalUndoMoves(v).foreach{vUndo: UndoMove =>
+      //w - earlier state, after one undo performed on w
       val w: State = v.beforeUndo(vUndo)
-
+      val wStats = stateStats(w.index)
+      //if !wStats.isSolved() ?
+      val wStatsUpdated: StateStats = statsUpdated(wStats)(v, vUndo, vStat)
+      stateStats(w.index) = Some(wStatsUpdated)
+      if (wStatsUpdated.isSolved) {
+        stateQueue += w
+      }
     }
 
   }

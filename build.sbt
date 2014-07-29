@@ -26,6 +26,10 @@ resolvers ++= Seq(
 
 scalacOptions += "-deprecation"
 
+scalacOptions += "-feature"
+
+scalacOptions += "-unchecked"
+
 scalacOptions ++= Seq("-Xmax-classfile-name", "254")
 
 scalaVersion := "2.10.4"

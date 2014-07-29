@@ -1,3 +1,4 @@
+import net.almost_done._
 
 /**
  * Created by nietaki on 3/6/14.
@@ -16,4 +17,9 @@ object SimpleApp {
     println("Lines with a: %s, Lines with b: %s".format(numAs, numBs))
   }
   */
+  def main(args: Array[String]) = {
+
+    val gs = new GameSolver(Settings.Default)
+  }
+
 }
