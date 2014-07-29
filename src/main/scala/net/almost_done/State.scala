@@ -53,7 +53,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
 
   protected def possibleDraws: List[Move] = {
     if(tableCardCount <= 1) {
-      List()
+      Nil
     } else {
       (1 until tableCardCount).map(Draw(_)).toList
     }

@@ -93,4 +93,28 @@ def combinations(startingCounts: List[Int], endingCounts: List[Int]): IndexedSeq
     }
     inner(IndexedSeq(List()), startingCounts.reverse, endingCounts.reverse)
   }
+
+  /**
+   * @return a list of end states. Note, those are *after* the winning move, so the "other" player has no cards
+   */
+  def endStates: List[State] = {
+    def splitGen: List[CardSplit] = {
+      for (
+        table <- (0 to 4).toList
+      ) yield CardSplit(4 - table, 0, table)
+    }
+    def zeroSplitGen: List[CardSplit] = {
+      for (
+        table <- (1 to 4).toList
+      ) yield CardSplit(4 - table, 0, table)
+    }
+    for (
+      nine <- zeroSplitGen;
+      ten <- splitGen;
+      jack <- splitGen;
+      queen <- splitGen;
+      king <- splitGen;
+      ace <- splitGen
+    ) yield State(IndexedSeq(nine, ten, jack, queen, king, ace))
+  }
 }
