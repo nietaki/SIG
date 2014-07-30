@@ -1,14 +1,11 @@
 package test
 
 import net.almost_done._
-import org.specs2.ScalaCheck
-import org.specs2.matcher.TraversableMatchers
-import org.specs2.mutable._
 import test.Generators._
 
 import org.scalacheck._
 import org.specs2.ScalaCheck
-import org.specs2.matcher.{Parameters, TraversableMatchers}
+import org.specs2.matcher.{Expectable, Matcher, Parameters, TraversableMatchers}
 import org.specs2.mutable._
 import spire.implicits._
 import spire.math._
@@ -22,10 +19,34 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
 
   override implicit def defaultParameters = new Parameters(minTestsOk = 1000)
 
-  "Deck" should {
-    "construct a correct random deck" in {
-      val state = Utils.randomStartingState
-      state.cardSplits.length mustEqual(6)
+  def beSameSequenceAs[T](seq: Seq[T]): Matcher[Traversable[T]] = new Matcher[Traversable[T]] {
+    def apply[S <: Traversable[T]](t: Expectable[S]) = {
+      val correctLength = seq.length == t.value.toSeq.length
+      val sameValues = seq.zip(t.value.toSeq).forall({case (a, b) => a == b})
+      result(correctLength && sameValues,
+        t.value.toList.toString() + "\n  contains the same elements as\n"+ seq.toList.toString(),
+        t.value.toList.toString() + "\n does not contain the same elements in same order as \n" + seq.toList.toString(),
+        t)
+    }
+  }
+  "a random starting deck" should {
+    "be of the right length" in {
+      (0 to 100).foreach{ i =>
+        val state = Utils.randomStartingState
+        state.cardSplits.length mustEqual(6)
+      }
+    }
+    "have only a nine on the table" in {
+      (0 to 100).foreach{ i =>
+        val state = Utils.randomStartingState
+        state.tableCards should beSameSequenceAs(List(1,0,0,0,0,0))
+      }
+    }
+    "have the first player have only eleven cards" in {
+      (0 to 100).foreach{ i =>
+        val state = Utils.randomStartingState
+        state.playerCards(0).sum should beEqualTo(11)
+      }
     }
   }
 
@@ -74,13 +95,21 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
     }
 
   }
-  "test" should {
+  "traversable matchers" should {
     "be able to compare collections" ! prop{ls: List[Int] =>
       ls must containTheSameElementsAs(ls)
     }
 
     "compare collections when shuffled" ! prop {ls: List[Int] =>
       ls must containTheSameElementsAs(Random.shuffle(ls))
+    }
+
+    "compare collections in order" ! prop {ls: List[Int] =>
+      ls must beSameSequenceAs(ls.toIndexedSeq)
+    }
+
+    "notice when the collection is in a different order" in {
+      List(1,2,3) must beSameSequenceAs(List(3,2,1)) not
     }
   }
 

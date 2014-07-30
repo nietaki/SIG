@@ -30,7 +30,7 @@ object Utils {
   def randomStartingState: State = {
     //the starting player has already played the 9 of hearts
     val shuffled = Random.shuffle(cardsWithoutOneNine)
-    val playersCards = shuffled.splitAt(12)
+    val playersCards = shuffled.splitAt(11)
 
     def extractCounts(cards: Vector[Int]): IndexedSeq[Int] = {
       (0 until 6).map(rank => cards.count(_ == rank))
@@ -117,4 +117,6 @@ def combinations(startingCounts: List[Int], endingCounts: List[Int]): IndexedSeq
       ace <- splitGen
     ) yield State(IndexedSeq(nine, ten, jack, queen, king, ace))
   }
+
+
 }

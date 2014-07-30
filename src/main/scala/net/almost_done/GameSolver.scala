@@ -11,35 +11,57 @@ import scala.collection._
 class GameSolver(val settings: Settings) {
   val rules = new Rules(settings)
 
-  val stateStats: Array[Option[StateStats]] = Array.fill(Utils.possibleStatesCount)(None)
-
-  val stateQueue: mutable.Queue[State] = mutable.Queue.empty
-  val endStates = Utils.endStates
-  endStates.foreach{es: State =>
-    stateStats.update(es.index, Some(StateStatsHelper.finalStats))
-  }
+  /*private*/ val stateStats: Array[Option[StateStats]] = Array.fill(Utils.possibleStatesCount)(None)
 
   val statsUpdated = StateStatsHelper.stateStatsOptionUpdated(rules) _
 
-  stateQueue ++= endStates
-  while(stateQueue.nonEmpty) {
-    //v - more final state
-    val v = stateQueue.dequeue()
-    val vStatOption = stateStats(v.index)
-    assert(vStatOption.isDefined)
-    val vStat = vStatOption.get
-    assert(vStat.isSolved)
-    val possibleUndoes = rules.legalUndoMoves(v).foreach{vUndo: UndoMove =>
-      //w - earlier state, after one undo performed on w
-      val w: State = v.beforeUndo(vUndo)
-      val wStats = stateStats(w.index)
-      //if !wStats.isSolved() ?
-      val wStatsUpdated: StateStats = statsUpdated(wStats)(v, vUndo, vStat)
-      stateStats(w.index) = Some(wStatsUpdated)
-      if (wStatsUpdated.isSolved) {
-        stateQueue += w
-      }
+  def endStates = Utils.endStates
+
+  def solve: Array[Option[StateStats]] = {
+
+    val stateQueue: mutable.Queue[State] = mutable.Queue.empty
+    endStates.foreach{es: State =>
+      stateStats.update(es.index, Some(StateStatsHelper.finalStats))
     }
 
+    var solvedCount = 0
+    stateQueue ++= endStates
+    while(stateQueue.nonEmpty) {
+      //v - more final state
+      val v = stateQueue.dequeue()
+      val vStat = stateStats(v.index).get
+      assert(vStat.isSolved)
+      val possibleUndoes = rules.legalUndoMoves(v).foreach{vUndo: UndoMove =>
+        //w - earlier state, after one undo performed on v
+        val w: State = v.beforeUndo(vUndo)
+        val wStatsOption = stateStats(w.index)
+        /*
+        the W state shouldn't be solved in an usual situation, since we know all its child states and we should reach it
+        from each of them once. The only other situation is when backing to a final state, which, by definition, shouldn't
+         have any children. Let's test that
+         */
+        if (wStatsOption.fold(true)(! _.isSolved)){ // HMM
+          val wStatsUpdated: StateStats = statsUpdated(wStatsOption)(v, vUndo, vStat)
+          stateStats(w.index) = Some(wStatsUpdated)
+          if (wStatsUpdated.isSolved) {
+            stateQueue += w
+            solvedCount +=1
+            if(solvedCount % 1000 == 0) {
+              println(solvedCount)
+              val done = 1.0 * solvedCount / Utils.possibleStatesCount
+              println(done)
+              println(s"queue length: ${stateQueue.length}")
+            }
+          }
+        } else {
+          //wStatsOption is solved
+
+        }
+      }
+
+    }
+    stateStats
   }
+
+
 }

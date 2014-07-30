@@ -18,8 +18,8 @@ object SimpleApp {
   }
   */
   def main(args: Array[String]) = {
-
-    val gs = new GameSolver(Settings.Default)
+     
+    val gs = new GameSolver(Settings.Simplest)
   }
 
 }

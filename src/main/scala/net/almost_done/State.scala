@@ -21,6 +21,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
     require(idx <= 1)
     cardSplits.map(cs => cs.counts(idx))
   }
+  def isFinal: Boolean = (0 to 1).exists {idx => playerCards(idx).forall(_ == 0) }
 
   def tableCards = cardSplits.map(_.tableCount)
   lazy val tableCardCount = tableCards.sum
