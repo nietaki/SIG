@@ -1,5 +1,7 @@
 package test
 
+import java.io._
+
 import net.almost_done._
 import test.Generators._
 
@@ -10,6 +12,8 @@ import org.specs2.mutable._
 import spire.implicits._
 import spire.math._
 
+import scala.pickling.binary.BinaryPickle
+import scala.pickling.io.TextFileOutput
 import scala.util.Random
 
 /**
@@ -192,6 +196,52 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
         r.isLegal(newState)(undo.move)
       }
     }
+  }
+
+  "Serialization" should {
+    val arr = Array.fill(Utils.possibleStatesCount / 1000 )(Some(StateStatsHelper.finalStats))
+    "java serialization save and read a short stats array" in {
+      val filename = "javaSerialization.tmp"
+      val file: File = new File(filename)
+      //~2.9 for 1/100 of the possible state count
+      val out = new ObjectOutputStream(new FileOutputStream(file))
+      out.writeObject(arr)
+      out.close
+      val in = new ObjectInputStream(new FileInputStream(new File(filename)))
+      val restoredArr = in.readObject().asInstanceOf[Array[Option[StateStats]]]
+      in.close
+      file.delete()
+      //println(restoredArr.toList)
+      true
+    }
+
+    "scala picking serialization save and read stats array" in pending/*{
+      import scala.pickling._
+      //import binary._
+      import json._
+      val file = new File("pickle.tmp")
+      val fileOut = new TextFileOutput(file)
+
+      arr.pickleTo(fileOut)
+      //TODO check if it's correct
+    }*/
+    case class PersonNums(name: String, randNums: Array[Int])
+    "run test from examples" in pending /*{
+      import scala.pickling._
+      import json._
+      import scala.io.Source
+      val p = PersonNums("James", (1 to 200).toArray)
+
+      val tmpFile = File.createTempFile("pickling", "fileoutput")
+      val fileOut = new TextFileOutput(tmpFile)
+
+      p.pickleTo(fileOut)
+      fileOut.close()
+
+      val fileContents = Source.fromFile(tmpFile).getLines.mkString("\n")
+
+      fileContents mustEqual(p.pickle.value)
+    }*/
   }
 
 }

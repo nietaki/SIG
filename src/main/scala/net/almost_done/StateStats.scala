@@ -10,7 +10,8 @@ package net.almost_done
  * @param bestMoveOption best move for the current player - option, it does not exist for final states
  * @param movesLeft how many outgoing moves are left to make sure the state is losing
  */
-case class StateStats(val impendingResult: ImpendingResult, val bestMoveOption: Option[Move], val movesLeft: Int) {
+@SerialVersionUID(1L)
+case class StateStats(val impendingResult: ImpendingResult, val bestMoveOption: Option[Move], val movesLeft: Int) extends Serializable{
   require(movesLeft >= 0)
 
   /**
