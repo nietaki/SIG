@@ -25,7 +25,7 @@ class InteractivePlayer(settings: Settings, solution: GameSolver.Solution) {
   val rules = new Rules(settings)
   def makeMove(curState: State, usersTurn: Boolean): Unit = {
     if (!curState.isFinal) {
-      println("YOUR MOVE")
+      println(if (usersTurn) "YOUR MOVE" else "COMPUTER's MOVE")
       println(curState)
       println("your cards: " + Utils.cardsRepresentation(curState.playerCards(0)))
       println("opponent's cards: " + Utils.cardsRepresentation(curState.playerCards(1)))
@@ -41,8 +41,10 @@ class InteractivePlayer(settings: Settings, solution: GameSolver.Solution) {
         possibleMoves.zipWithIndex.foreach({ case (move, idx) => println(s"$idx: ${move.moveDescription}")})
         val stateStat = solution(curState.index)
         println(s"stateStats: $stateStat")
-        val choice = InteractivePlayer.getPlayerChoice(possibleMoves.length, "pick computer's move>")
-        val newState = curState.afterMove(possibleMoves(choice))
+        //val choice = InteractivePlayer.getPlayerChoice(possibleMoves.length, "pick computer's move>")
+        //val newState = curState.afterMove(possibleMoves(choice))
+        val bestMove = stateStat.get.bestMoveOption.get
+        val newState = curState.afterMove(bestMove)
         makeMove(newState, !usersTurn)
       }
 

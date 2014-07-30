@@ -83,6 +83,7 @@ object GameSolver {
             }
           }
         } else {
+          assert(w.isFinal || wStatsOption.get.isWon)
           println(s"w state says that it is final ${w.isFinal}")
           println(s"wstats says that it is won ${wStatsOption.get.isWon}")
           println()
