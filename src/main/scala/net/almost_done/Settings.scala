@@ -6,23 +6,26 @@ import net.almost_done.Settings._
  * Created by nietaki on 23.07.14.
  */
 object Settings {
-  sealed trait PlayingThreeNines
-  case object PlayingThreeNinesAllowed extends PlayingThreeNines
-  case object PlayingThreeNinesNotAllowed extends PlayingThreeNines
 
-  sealed trait PlayingFourFigures
-  case object PlayingFourFiguresAllowed extends PlayingFourFigures
-  case object PlayingFourFiguresNotAllowed extends PlayingFourFigures
+  trait SimplyNamed {def name: String}
 
-  sealed trait PlayingThreeFigures
-  case object PlayingThreeFiguresAllowed extends PlayingThreeFigures
-  case object PlayingThreeFiguresOnlyOnAFourth extends PlayingThreeFigures
-  case object PlayingThreeFiguresNotAllowed extends PlayingThreeFigures
+  sealed trait PlayingThreeNines extends SimplyNamed
+  case object PlayingThreeNinesAllowed extends PlayingThreeNines {val name = "PTN1"}
+  case object PlayingThreeNinesNotAllowed extends PlayingThreeNines {val name = "PTN0"}
 
-  sealed trait DrawingCards
-  case object DrawingThreeCards extends DrawingCards
-  case object DrawingThreeCardsOrAll extends DrawingCards
-  case object DrawingAnyNumberOfCardsGreaterOrEqualThree extends DrawingCards
+  sealed trait PlayingFourFigures extends SimplyNamed
+  case object PlayingFourFiguresAllowed extends PlayingFourFigures {val name = "PFF1"}
+  case object PlayingFourFiguresNotAllowed extends PlayingFourFigures {val name = "PFF0"}
+
+  sealed trait PlayingThreeFigures extends SimplyNamed
+  case object PlayingThreeFiguresAllowed extends PlayingThreeFigures {val name = "PTF1"}
+  case object PlayingThreeFiguresOnlyOnAFourth extends PlayingThreeFigures {val name = "PTF4"}
+  case object PlayingThreeFiguresNotAllowed extends PlayingThreeFigures {val name = "PTF0"}
+
+  sealed trait DrawingCards extends SimplyNamed
+  case object DrawingThreeCards extends DrawingCards {val name = "DC3"}
+  case object DrawingThreeCardsOrAll extends DrawingCards {val name = "DC3A"}
+  case object DrawingAnyNumberOfCardsGreaterOrEqualThree extends DrawingCards {val name = "DCGT3"}
 
   def apply(ptn: PlayingThreeNines, pff: PlayingFourFigures, ptf: PlayingThreeFigures, dc: DrawingCards): Settings = {
     new Settings {
@@ -57,11 +60,13 @@ object Settings {
 
 }
 
-trait Settings {
+trait Settings extends SimplyNamed {
   val playingThreeNines: PlayingThreeNines
   val playingFourFigures: PlayingFourFigures
   val playingThreeFigures: PlayingThreeFigures
   val drawingCards: DrawingCards
+
+  override def name = s"${playingThreeNines.name}-${playingFourFigures.name}-${playingThreeFigures.name}-${drawingCards.name}"
 
   override def toString = s"Settings: $playingThreeNines, $playingFourFigures, $playingThreeFigures, $drawingCards"
 }

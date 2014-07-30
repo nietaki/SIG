@@ -6,9 +6,12 @@ import net.almost_done._
 object SimpleApp {
 
   def main(args: Array[String]): Unit = {
-     
-    val gs = new GameSolver(Settings.Simplest)
-    gs.getSolution
+    val settings = Settings.Simplest
+    val solution: GameSolver.Solution = GameSolver.getSolution(settings)
+    val player = new InteractivePlayer(settings, solution)
+    val startingState = Utils.randomStartingState
+    player.makeMove(startingState, true)
+
   }
 
 }
