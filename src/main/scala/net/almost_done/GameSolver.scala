@@ -69,7 +69,7 @@ object GameSolver {
         from each of them once. The only other situation is when backing to a final state, which, by definition, shouldn't
          have any children. Let's test that
          */
-        if (wStatsOption.fold(true)(! _.isSolved)){ // HMM
+        if (wStatsOption.fold(true)(! _.isSolved)){ // HMM FIXME
           val wStatsUpdated: StateStats = statsUpdated(wStatsOption)(v, vUndo, vStat)
           stateStats(w.index) = Some(wStatsUpdated)
           if (wStatsUpdated.isSolved) {
@@ -83,6 +83,9 @@ object GameSolver {
             }
           }
         } else {
+          println(s"w state says that it is final ${w.isFinal}")
+          println(s"wstats says that it is won ${wStatsOption.get.isWon}")
+          println()
           //wStatsOption is solved
 
         }
