@@ -5,7 +5,7 @@ target
 .settings
 .worksheet
 *.swp
-
+*.solution
 
 #copied from GitHub defaults:
 *.class

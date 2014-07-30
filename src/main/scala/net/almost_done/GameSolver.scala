@@ -1,4 +1,7 @@
 package net.almost_done
+
+import java.io._
+
 import scala.collection._
 /**
  * Created by nietaki on 29.07.14.
@@ -10,14 +13,35 @@ import scala.collection._
  */
 class GameSolver(val settings: Settings) {
   val rules = new Rules(settings)
-
+  //TODO elliminate the state here
   /*private*/ val stateStats: Array[Option[StateStats]] = Array.fill(Utils.possibleStatesCount)(None)
 
   val statsUpdated = StateStatsHelper.stateStatsOptionUpdated(rules) _
 
   def endStates = Utils.endStates
 
-  def solve: Array[Option[StateStats]] = {
+  def solutionFilename: String = settings.hashCode().toString + ".solution"
+
+  def getSolution: Array[Option[StateStats]] = {
+    val solutionFile = new java.io.File(solutionFilename)
+    if (solutionFile.exists()) {
+      println("reading solution from file")
+      val in = new ObjectInputStream(new FileInputStream(solutionFile))
+      val stateStats = in.readObject().asInstanceOf[Array[Option[StateStats]]]
+      in.close
+      println("solution read from file")
+    } else {
+      println("solving")
+      solve()
+      println("saving solution to file")
+      val out = new ObjectOutputStream(new FileOutputStream(solutionFile))
+      out.writeObject(stateStats)
+      out.close
+      println("solution saved")
+    }
+    stateStats
+  }
+  def solve(): Array[Option[StateStats]] = {
 
     val stateQueue: mutable.Queue[State] = mutable.Queue.empty
     endStates.foreach{es: State =>
