@@ -8,7 +8,10 @@ import scala.util.Random
 object SimpleApp {
 
   def main(args: Array[String]): Unit = {
-    val settings = Settings.Simplest
+    println("choose game version: 0 - simplest, 1 - default, 2 - crazy")
+    val choice = InteractivePlayer.getPlayerChoice(3)
+    val settingsSeq = List(Settings.Simplest, Settings.Default, Settings.Crazy)
+    val settings = settingsSeq(choice)
     val solution: GameSolver.Solution = GameSolver.getSolution(settings)
     val player = new InteractivePlayer(settings, solution)
     val startingState = Utils.randomStartingState

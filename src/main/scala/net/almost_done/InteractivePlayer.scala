@@ -31,16 +31,15 @@ class InteractivePlayer(settings: Settings, solution: GameSolver.Solution) {
       println("opponent's cards: " + Utils.cardsRepresentation(curState.playerCards(1)))
       println("cards on table: " + Utils.cardsRepresentation(curState.tableCards))
       val possibleMoves = rules.legalMoves(curState)
+      val stateStat = solution(curState.index)
+      possibleMoves.zipWithIndex.foreach({ case (move, idx) => println(s"$idx: ${move.moveDescription}")})
+      println(s"stateStats: $stateStat")
       if (usersTurn) {
-        possibleMoves.zipWithIndex.foreach({ case (move, idx) => println(s"$idx: ${move.moveDescription}")})
         val choice = InteractivePlayer.getPlayerChoice(possibleMoves.length, "pick a move>")
         val newState = curState.afterMove(possibleMoves(choice))
         makeMove(newState, !usersTurn)
       } else {
         //computer's move
-        possibleMoves.zipWithIndex.foreach({ case (move, idx) => println(s"$idx: ${move.moveDescription}")})
-        val stateStat = solution(curState.index)
-        println(s"stateStats: $stateStat")
         //val choice = InteractivePlayer.getPlayerChoice(possibleMoves.length, "pick computer's move>")
         //val newState = curState.afterMove(possibleMoves(choice))
         val bestMove = stateStat.get.bestMoveOption.get
@@ -52,6 +51,11 @@ class InteractivePlayer(settings: Settings, solution: GameSolver.Solution) {
       println("GAME HAS FINISHED!")
       val who = if(usersTurn) "computer" else "user"
       println(s"$who has won!")
+      println()
+      println()
+      println()
+      println()
+      println()
     }
   }
 }

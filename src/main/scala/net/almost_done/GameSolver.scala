@@ -69,13 +69,14 @@ object GameSolver {
         from each of them once. The only other situation is when backing to a final state, which, by definition, shouldn't
          have any children. Let's test that
          */
-        if (wStatsOption.fold(true)(! _.isSolved)){ // HMM FIXME
+        //we don't need to analyze children that were already identified as winning or losing
+        if (wStatsOption.fold(true)(! _.isSolved)){
           val wStatsUpdated: StateStats = statsUpdated(wStatsOption)(v, vUndo, vStat)
           stateStats(w.index) = Some(wStatsUpdated)
           if (wStatsUpdated.isSolved) {
             stateQueue += w
             solvedCount +=1
-            if(solvedCount % 100000 == 0) {
+            if(solvedCount % 10000 == 0) {
               println(solvedCount)
               val done = 1.0 * solvedCount / Utils.possibleStatesCount
               println(done)
@@ -83,11 +84,10 @@ object GameSolver {
             }
           }
         } else {
-          assert(w.isFinal || wStatsOption.get.isWon)
-          println(s"w state says that it is final ${w.isFinal}")
-          println(s"wstats says that it is won ${wStatsOption.get.isWon}")
-          println()
-          //wStatsOption is solved
+          assert(w.isFinal || wStatsOption.get.result == Win)
+          //println(s"w state says that it is final ${w.isFinal}")
+          //println(s"wstats says that the result is ${wStatsOption.get.result}")
+          //println()
 
         }
       }
