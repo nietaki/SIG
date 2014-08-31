@@ -43,7 +43,10 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   /**
    * the table should never be empty
    */
-  lazy val cardOnTopOfTable = tableCards.lastIndexWhere(_ > 0)
+  lazy val cardOnTopOfTable: Option[Int] = {
+    val ret = tableCards.lastIndexWhere(_ > 0)
+    if (ret < 0) None else Some(ret)
+  }
 
   //def highestCardOfPlayer(idx: Int) = playerCards(idx).lastIndexWhere(_ > 0)
 
@@ -54,7 +57,7 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
 
 
   protected def possibleDraws: List[Move] = {
-    if(tableCardCount <= 1) {
+    if(tableCardCount <= 0) {
       Nil
     } else {
       (1 until tableCardCount).map(Draw(_)).toList
@@ -62,8 +65,9 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   }
 
   protected def possiblePlays: List[Move] = {
+    val firstPossibleCard = cardOnTopOfTable.getOrElse(0)
     val plays = for(
-      rank <- (cardOnTopOfTable until 6);
+      rank <- (firstPossibleCard until 6);
       count <- (1 to currentPlayerCards(rank))
     ) yield Play(rank, count)
     plays.toList
@@ -156,19 +160,28 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
      */
     //TODO this could be more effective within the whole algorithm if the first undos were "sticking to" the end moves
     //(1 until otherPlayerCards.sum).map(Draw(_)).toList
-    val firstVialble = cardOnTopOfTable
-    val startingCounts = List.fill(6)(0)
-    val endingCountsUnchecked = otherPlayerCards //they couldn't have drawn more than they have
-    val endingCounts = startingCounts.take(firstVialble) ::: endingCountsUnchecked.drop(firstVialble).toList
+    cardOnTopOfTable match {
+      case None => Seq()
+      case Some(firstViable)=> {
+        val startingCounts = List.fill(6)(0)
+        val endingCountsUnchecked = otherPlayerCards //they couldn't have drawn more than they have
+        val endingCounts = startingCounts.take(firstViable) ::: endingCountsUnchecked.drop(firstViable).toList
 
-    val combinations = Utils.combinations2(startingCounts, endingCounts).filter(_.sum > 0)
-    combinations.map(combination => UndoDraw(Draw(combination.sum), combination))
+        val combinations = Utils.combinations2(startingCounts, endingCounts).filter(_.sum > 0)
+        combinations.map(combination => UndoDraw(Draw(combination.sum), combination))
+      }
+    }
   }
 
   def possiblePlayUndoMoves: List[UndoPlay] = {
-    val maxPlaySize = tableCardCount - 1
-    val sameCardCountOnTopOfTheTable = tableCards(cardOnTopOfTable)
-    (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(cardOnTopOfTable, _)).map(UndoPlay(_)).toList
+    cardOnTopOfTable match {
+      case None => Nil
+      case Some(topTableCard) =>
+        val maxPlaySize = tableCardCount - 1
+        val sameCardCountOnTopOfTheTable = tableCards(topTableCard)
+        (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(topTableCard, _)).map(UndoPlay(_)).toList
+    }
+
   }
 
   def possibleUndoMoves: Seq[UndoMove] = possibleDrawUndoMoves ++ possiblePlayUndoMoves

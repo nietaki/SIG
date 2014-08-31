@@ -39,16 +39,16 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
         state.cardSplits.length mustEqual(6)
       }
     }
-    "have only a nine on the table" in {
+    "have nothing on the table" in {
       (0 to 100).foreach{ i =>
         val state = Utils.randomStartingState
-        state.tableCards should beSameSequenceAs(List(1,0,0,0,0,0))
+        state.tableCards should beSameSequenceAs(List(0,0,0,0,0,0))
       }
     }
-    "have the first player have only eleven cards" in {
+    "have the first player have twelve cards" in {
       (0 to 100).foreach{ i =>
         val state = Utils.randomStartingState
-        state.playerCards(0).sum should beEqualTo(11)
+        state.playerCards(0).sum should beEqualTo(12)
       }
     }
   }
@@ -192,7 +192,11 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
       val r = new Rules(settings)
       r.legalUndoMoves(state).forall{undo: UndoMove =>
         val newState = state.beforeUndo(undo)
-        r.isLegal(newState)(undo.move)
+        val ret = r.isLegal(newState)(undo.move)
+        if(!ret){
+          println(s"Move ${undo.move} is not legal in $newState")
+        }
+        ret
       }
     }
   }

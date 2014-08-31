@@ -36,7 +36,7 @@ class Rules(val settings: Settings) {
           else {
             val normal = settings.playingThreeFigures == Settings.PlayingThreeFiguresAllowed
             val onFourth = (settings.playingThreeFigures == Settings.PlayingThreeFiguresOnlyOnAFourth) &&
-              state.cardOnTopOfTable == rank
+              state.cardOnTopOfTable == Some(rank)
 
             normal || onFourth
           }

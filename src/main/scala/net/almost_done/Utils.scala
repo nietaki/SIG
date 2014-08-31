@@ -29,8 +29,8 @@ object Utils {
 
   def randomStartingState: State = {
     //the starting player has already played the 9 of hearts
-    val shuffled = Random.shuffle(cardsWithoutOneNine)
-    val playersCards = shuffled.splitAt(11)
+    val shuffled = Random.shuffle(allCards)
+    val playersCards = shuffled.splitAt(12)
 
     def extractCounts(cards: Vector[Int]): IndexedSeq[Int] = {
       (0 until 6).map(rank => cards.count(_ == rank))
@@ -38,9 +38,19 @@ object Utils {
     val pl0Counts = extractCounts(playersCards._1)
     val pl1Counts = extractCounts(playersCards._2)
 
-    val tableCounts = Vector.fill(6)(0).updated(0, 1)
+    val tableCounts = Vector.fill(6)(0)
 
-    val ret = (0 until 6).map(idx => CardSplit(pl0Counts(idx), pl1Counts(idx), tableCounts(idx)))
+    //choosing the starting player
+    val pl09Counts = pl0Counts(0)
+    val choice = Random.nextInt(4) + 1
+    val doSwitch = choice > pl09Counts
+
+    val (c0, c1) = if(doSwitch)
+      (pl0Counts, pl1Counts)
+    else
+      (pl1Counts, pl0Counts)
+
+    val ret = (0 until 6).map(idx => CardSplit(c0(idx), c1(idx), tableCounts(idx)))
     State(ret)
   }
 
