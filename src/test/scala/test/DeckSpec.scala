@@ -20,7 +20,6 @@ import scala.util.Random
  * Created by nietaki on 04.07.14.
  */
 class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
-
   override implicit def defaultParameters = new Parameters(minTestsOk = 1000)
 
   def beSameSequenceAs[T](seq: Seq[T]): Matcher[Traversable[T]] = new Matcher[Traversable[T]] {

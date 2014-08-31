@@ -25,9 +25,10 @@ class InteractivePlayer(settings: Settings, solution: GameSolver.Solution) {
   val rules = new Rules(settings)
   def makeMove(curState: State, usersTurn: Boolean): Unit = {
     if (!curState.isFinal) {
+      println()
       println(if (usersTurn) "YOUR MOVE" else "COMPUTER's MOVE")
-      println(curState)
-      println("your cards: " + Utils.cardsRepresentation(curState.playerCards(0)))
+      //println(curState)
+      println("current player's cards: " + Utils.cardsRepresentation(curState.playerCards(0)))
       println("opponent's cards: " + Utils.cardsRepresentation(curState.playerCards(1)))
       println("cards on table: " + Utils.cardsRepresentation(curState.tableCards))
       val possibleMoves = rules.legalMoves(curState)
