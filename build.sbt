@@ -1,3 +1,5 @@
+import com.github.retronym.SbtOneJar._
+
 name := "SIG"
 
 version := "0.1"
@@ -18,6 +20,8 @@ libraryDependencies  ++= Seq(
             "org.scala-lang" %% "scala-pickling" % "0.8.0"
 )
 
+
+oneJarSettings
 
 resolvers ++= Seq(
             "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
