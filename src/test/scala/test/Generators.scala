@@ -20,11 +20,19 @@ object Generators {
   private val correctState: Gen[State] = {
     val ls = Gen.listOfN(6, cardSplitGen)
     //could be done without the filter
-    val correct = ls.filter(ls => ls(0).tableCount > 0).map(ls => State(ls.toIndexedSeq))
+    def filterFun(csl: List[CardSplit]): Boolean = {
+      val nonInitialState: Boolean = csl(0).tableCount > 0
+      val initialState: Boolean = csl.map(cs => cs.tableCount).sum == 0 && csl.map(cs => cs.ours).sum == 12 && csl(0).ours > 0
+      initialState || nonInitialState
+    }
+
+    val correct = ls.filter(filterFun(_)).map(ls => State(ls.toIndexedSeq))
     correct
   }
 
   implicit val arbitraryState: Arbitrary[State] = Arbitrary(correctState)
+
+  val nonInitialState: Gen[State] = correctState.filter(state => !state.isStarting)
 
   val stateAndLessThanTableCardCount: Gen[(State, Int)] = {
     for(

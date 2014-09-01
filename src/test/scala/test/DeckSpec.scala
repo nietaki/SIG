@@ -78,7 +78,7 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
       val (s1, s2) = st
       (s1.index == s2.index) == (s1 == s2)
     }
-    "have at least one 9 on the table" in prop{s: State =>
+    "have at least one 9 on the table in non initial states" in Prop.forAllNoShrink(Generators.nonInitialState){s: State=>
       s.tableCards(0) > 0
     }
     "have the index in the desired range" in prop{s: State =>
@@ -169,6 +169,46 @@ class DeckSpec extends Specification with TraversableMatchers with ScalaCheck  {
   }
 
   "All Settings" should {
+
+    "allow to undo all the moves from starting positions" in prop {(settings: Settings) =>
+      val rules = new Rules(settings)
+
+      (0 to 100).forall{ i =>
+        val startingState = Utils.randomStartingState
+        val possibleMoves = rules.legalMoves(startingState)
+        possibleMoves.forall({m: Move =>
+          val stateAfterMove = startingState.afterMove(m)
+          val isGood = rules.legalUndoMoves(stateAfterMove).exists({um: UndoMove =>
+            stateAfterMove.beforeUndo(um) == startingState
+          })
+          if(!isGood) {
+            println("cannot undo:")
+            println(s"starting state: $startingState")
+            println(s"move: $m")
+            println(s"state after move: $stateAfterMove")
+          }
+          isGood
+        })
+      }
+    }
+
+    "have a legit move in each of the starting positions" in prop {(settings: Settings) =>
+      val rules = new Rules(settings)
+
+      (0 to 100).forall{ i =>
+        val startingState = Utils.randomStartingState
+        val legalMoves = rules.legalMoves(startingState)
+        val ret = legalMoves.length > 0
+        if(!ret) {
+          println(s"starting state: ${startingState}")
+          println(s"possible moves: ${startingState.possibleMoves}")
+          println(s"legal moves: $legalMoves")
+        }
+        ret
+      }
+    }
+
+
     "allow to undo all the moves they allowed to do" ! prop { (state: State, settings: Settings) =>
       val r = new Rules(settings)
       r.legalMoves(state).forall{m: Move =>

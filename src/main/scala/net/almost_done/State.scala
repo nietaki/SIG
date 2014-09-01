@@ -65,12 +65,22 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
   }
 
   protected def possiblePlays: List[Move] = {
-    val firstPossibleCard = cardOnTopOfTable.getOrElse(0)
-    val plays = for(
-      rank <- (firstPossibleCard until 6);
-      count <- (1 to currentPlayerCards(rank))
-    ) yield Play(rank, count)
-    plays.toList
+    cardOnTopOfTable match {
+      case None => {
+        val plays = for(
+          count <- (1 to currentPlayerCards(0))
+        ) yield Play(0, count)
+        plays.toList
+      }
+      case Some(firstPossibleCard) => {
+        val plays = for(
+          rank <- (firstPossibleCard until 6);
+          count <- (1 to currentPlayerCards(rank))
+        ) yield Play(rank, count)
+        plays.toList
+      }
+    }
+
   }
 
   /**
@@ -172,14 +182,20 @@ case class State(cardSplits: IndexedSeq[CardSplit]) {
       }
     }
   }
-
   def possiblePlayUndoMoves: List[UndoPlay] = {
     cardOnTopOfTable match {
       case None => Nil
       case Some(topTableCard) =>
         val maxPlaySize = tableCardCount - 1
         val sameCardCountOnTopOfTheTable = tableCards(topTableCard)
-        (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(topTableCard, _)).map(UndoPlay(_)).toList
+        val nonInitialPlays = (1 to math.min(maxPlaySize, sameCardCountOnTopOfTheTable)).map(Play(topTableCard, _)).map(UndoPlay(_)).toList
+
+        if(topTableCard == 0 && otherPlayerCards.sum + sameCardCountOnTopOfTheTable == 12){
+          assert(sameCardCountOnTopOfTheTable == tableCardCount)
+          UndoPlay(Play(0, sameCardCountOnTopOfTheTable)) :: nonInitialPlays
+        } else {
+          nonInitialPlays
+        }
     }
 
   }

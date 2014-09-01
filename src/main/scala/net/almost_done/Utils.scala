@@ -45,10 +45,8 @@ object Utils {
     val choice = Random.nextInt(4) + 1
     val doSwitch = choice > pl09Counts
 
-    val (c0, c1) = if(doSwitch)
-      (pl0Counts, pl1Counts)
-    else
-      (pl1Counts, pl0Counts)
+    val counts = (pl0Counts, pl1Counts)
+    val (c0, c1) = if(doSwitch) counts.swap else counts
 
     val ret = (0 until 6).map(idx => CardSplit(c0(idx), c1(idx), tableCounts(idx)))
     State(ret)

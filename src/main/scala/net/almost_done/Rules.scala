@@ -53,12 +53,6 @@ class Rules(val settings: Settings) {
 
   def legalMoveCount = legalMoves(_: State).length
 
-  //TODO
-  //TODO
-  //TODO scalacheck tests for moves and undo moves (together)
-  //TODO
-  //TODO
-
   //UNDO
   def isUndoLegal(state: State)(undoMove: UndoMove): Boolean =
     undoMove match {
